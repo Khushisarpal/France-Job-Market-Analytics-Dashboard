@@ -147,14 +147,65 @@ All KPI cards are also cross-filters — clicking any card applies it as a filte
  
 ## 💡 Tooltips
  
-Hovering over any row in the details table shows a tooltip with additional context:
+Hovering over the job trend bar chart provides insights into the distribution of jobs across Good Match, Medium Match, and Low Match categories.
+
  
-- Full job description excerpt
-- All matched skills for that listing
-- Requirement severity breakdown (required vs preferred)
-- Days since posting
-- Hiring demand flags (urgent / high volume)
+
 Tooltips are built as a separate report page and linked to the details table, giving you rich context without cluttering the main view.
  
 ---
+ ## Automated Data Pipeline
  
+The data behind this dashboard is refreshed automatically every week using a GitHub Actions pipeline — no manual scraping required.
+ 
+### How the Pipeline Works
+ 
+1. **GitHub Actions triggers** every Monday at 8am UTC (or manually via the workflow dispatch button in GitHub)
+2. **Python scraper** using the `jobspy` library searches Indeed France for your target roles across multiple search terms
+3. **Data is cleaned** — duplicate listings removed by job URL, salary text parsed, metadata added
+4. **Existing applications protected** — any job you have marked as Applied is preserved across scrapes and never overwritten
+5. **CSV committed back to GitHub** — the updated file is pushed automatically to `data/jobs_france.csv`
+6. **Power BI reads the raw GitHub URL** — hitting refresh in Power BI pulls the latest scrape instantly
+### Search Terms Covered
+ 
+- Data Analyst (France)
+- Business Analyst (France)
+- Power BI (France)
+- Data Analyst Stage (France)
+- Analyste de données (France)
+Search terms are fully configurable in `scraper.py`.
+
+## 🚀 How to Use This Dashboard
+ 
+### First-Time Setup
+ 
+1. Clone or fork this repository
+2. Open `My_Profile.xlsx` and fill in your target role, location, preferred work mode, salary target, and up to six skills
+3. Open the `.pbix` file in Power BI Desktop
+4. Update the data source path for `My_Profile.xlsx` to your local file location
+5. The GitHub raw CSV URL for job data is already connected — hit Refresh to pull the latest scrape
+### Weekly Usage
+ 
+1. Open Power BI Desktop and hit **Refresh** — pulls the latest scraped data from GitHub automatically
+2. Check the **Strong Matches Pending** KPI — these are your priority applications for the week
+3. Use the **Top Matches** button to filter the details table to your best opportunities
+4. Click **Apply Link** on any row to go directly to the Indeed listing
+5. Mark applied jobs by updating the `Applied` column in your local Excel tracker
+### Updating Your Profile
+ 
+To update your skills, target role, salary, or location — edit `My_Profile.xlsx` and hit Refresh in Power BI. All relevance scores recalculate automatically based on your new profile. No DAX edits required.
+
+## 📊 Skills Demonstrated
+ 
+This project was built to showcase end-to-end data engineering and analytics skills:
+ 
+- **Data pipeline design** — automated scrape → clean → store → visualise cycle
+- **Advanced DAX** — multi-column calculated columns, LOOKUPVALUE cross-table references, IFERROR-wrapped SEARCH for French text, word-boundary matching, SWITCH-based classification
+- **Power Query ** — data shaping, column type management, source configuration
+- **Data modelling** — two-table architecture with profile config pattern, no unnecessary relationships
+- **Product thinking** — dashboard designed around a real workflow (what do I apply to today?) not just data display
+- **Automation** — GitHub Actions YAML, cron scheduling, git commit workflows, Python scripting
+---
+ 
+*Built by Khushi Sarpal — MSc Data Science & AI, Toulouse Business School*  
+*GitHub: [github.com/Khushisarpal](https://github.com/Khushisarpal)*
