@@ -1,0 +1,41 @@
+# This is a basic workflow to help you get started with Actions
+
+name: updated jobs
+
+# Controls when the workflow will run
+
+
+on:
+  # runs every Monday at 8 am UTC
+  schedule:
+    - cron: '0 8 * * 1'
+
+  # lets you trigger manually from GitHub UI anytime
+  workflow_dispatch:
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run scraper
+        run: indeed_jobs_scrapper.ipynb
+
+      - name: Commit and push updated CSV
+        run: |
+          git config --global user.email "github-actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git add data/jobs_france.csv
+          git commit -m "Auto scrape $(date +'%Y-%m-%d %H:%M')" || echo "No changes to commit"
+          git push
